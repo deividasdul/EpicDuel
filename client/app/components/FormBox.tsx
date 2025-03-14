@@ -9,14 +9,12 @@ interface Props {
 const FormBox = ({ children, label }: Props) => {
   return (
     <Paper elevation={12} sx={{ p: 5 }}>
-      <form>
-        <Typography color="primary" align="center" variant="h3" gutterBottom>
-          {label}
-        </Typography>
-        <Stack gap={2} p={2} m={2}>
-          {children}
-        </Stack>
-      </form>
+      <Typography color="primary" align="center" variant="h3" gutterBottom>
+        {label}
+      </Typography>
+      <Stack gap={2} p={2} m={2}>
+        {children}
+      </Stack>
     </Paper>
   );
 };

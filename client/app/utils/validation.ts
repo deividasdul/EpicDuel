@@ -14,3 +14,29 @@ export const isValidEmail = (input: string) => {
   const regex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
   return regex.test(input);
 };
+
+export const setError = (
+  fieldType: string,
+  errorMessage: string,
+  setIsError: React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
+  setErrorMessage: React.Dispatch<React.SetStateAction<Record<string, string>>>
+) => {
+  setIsError((prevState) => ({
+    ...prevState,
+    [fieldType]: true,
+  }));
+  setErrorMessage((prevState) => ({
+    ...prevState,
+    [fieldType]: errorMessage,
+  }));
+};
+
+export const clearError = (
+  fieldType: string,
+  setIsError: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+) => {
+  setIsError((prevState) => ({
+    ...prevState,
+    [fieldType]: false,
+  }));
+};

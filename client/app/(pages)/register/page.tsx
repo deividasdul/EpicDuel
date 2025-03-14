@@ -6,12 +6,15 @@ import { Button, Stack, TextField, Link } from "@mui/material";
 import React, { useState } from "react";
 import FormBox from "@/app/components/FormBox";
 import {
+  clearError,
   isEmpty,
   isMatching,
   isShort,
   isValidEmail,
+  setError,
 } from "@/app/utils/validation";
 import { redirect } from "next/navigation";
+import SignInButton from "@/app/components/SignInButton";
 
 interface Input {
   email: string;
@@ -26,13 +29,13 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const [isError, setIsError] = useState({
+  const [isError, setIsError] = useState<Record<string, boolean>>({
     email: false,
     password: false,
     confirmPassword: false,
   });
 
-  const [errorMessage, setErrorMessage] = useState<Input>({
+  const [errorMessage, setErrorMessage] = useState<Record<string, string>>({
     email: "",
     password: "",
     confirmPassword: "",
@@ -47,83 +50,106 @@ const Register = () => {
     });
   };
 
-  const setError = (fieldType: string, errorMessage: string) => {
-    setIsError((prevState) => ({
-      ...prevState,
-      [fieldType]: true,
-    }));
-    setErrorMessage((prevState) => ({
-      ...prevState,
-      [fieldType]: errorMessage,
-    }));
-  };
-
-  const clearError = (fieldType: string) => {
-    setIsError((prevState) => ({
-      ...prevState,
-      [fieldType]: false,
-    }));
-  };
-
   const validateFields = async () => {
-    let isInvalid = false;
+    let isInvalidEmail = true;
+    let isInvalidPassword = true;
+    let isInvalidConfirmPassword = true;
+
     const { email, password, confirmPassword } = input;
 
     // Email validation
     if (isEmpty(email)) {
-      setError("email", "The email field should not be empty");
-      isInvalid = true;
+      setError(
+        "email",
+        "The email field should not be empty",
+        setIsError,
+        setErrorMessage
+      );
     } else if (!isValidEmail(email)) {
-      setError("email", "Email field in wrong format");
-      isInvalid = true;
+      setError(
+        "email",
+        "Email field in wrong format",
+        setIsError,
+        setErrorMessage
+      );
     } else {
-      clearError("email");
-      isInvalid = false;
+      clearError("email", setIsError);
+      isInvalidEmail = false;
     }
 
     // Password validation
     if (isEmpty(password)) {
-      setError("password", "The password field should not be empty");
-      isInvalid = true;
+      setError(
+        "password",
+        "The password field should not be empty",
+        setIsError,
+        setErrorMessage
+      );
     } else if (isShort(password)) {
-      setError("password", "The password field must be more than 8 characters");
-      isInvalid = true;
+      setError(
+        "password",
+        "The password field must be more than 8 characters",
+        setIsError,
+        setErrorMessage
+      );
     } else if (!isMatching(password, confirmPassword)) {
-      setError("password", "The password fields should match");
-      setError("confirmPassword", "The password fields should match");
-      isInvalid = true;
+      setError(
+        "password",
+        "The password fields should match",
+        setIsError,
+        setErrorMessage
+      );
+      setError(
+        "confirmPassword",
+        "The password fields should match",
+        setIsError,
+        setErrorMessage
+      );
     } else {
-      clearError("password");
-      isInvalid = false;
+      clearError("password", setIsError);
+      isInvalidPassword = false;
     }
 
     // Confirm password validation
     if (isEmpty(confirmPassword)) {
       setError(
         "confirmPassword",
-        "The confirm password field should not be empty"
+        "The confirm password field should not be empty",
+        setIsError,
+        setErrorMessage
       );
-      isInvalid = true;
     } else if (isShort(confirmPassword)) {
       setError(
         "confirmPassword",
-        "The confirm password field must be more than 8 characters"
+        "The confirm password field must be more than 8 characters",
+        setIsError,
+        setErrorMessage
       );
     } else if (!isMatching(password, confirmPassword)) {
-      setError("password", "The password fields should match");
-      setError("confirmPassword", "The password fields should match");
-      isInvalid = true;
+      setError(
+        "password",
+        "The password fields should match",
+        setIsError,
+        setErrorMessage
+      );
+      setError(
+        "confirmPassword",
+        "The password fields should match",
+        setIsError,
+        setErrorMessage
+      );
     } else {
-      clearError("confirmPassword");
-      isInvalid = false;
+      clearError("confirmPassword", setIsError);
+      isInvalidPassword = false;
+      isInvalidConfirmPassword = false;
     }
 
-    if (!isInvalid) {
+    if (!isInvalidEmail && !isInvalidPassword && !isInvalidConfirmPassword) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res: any = await createAccount(input);
 
       if (res?.message === "Email already taken")
-        setError("email", "Email already taken");
+        setError("email", "Email already taken", setIsError, setErrorMessage);
       else {
         redirect("/login");
       }
@@ -176,10 +202,12 @@ const Register = () => {
           }}
           variant="contained"
           size="large"
+          color="error"
           sx={{ p: 2 }}
         >
           Create a New Account
         </Button>
+        <SignInButton />
         <Link variant="button" align="center" href={"/login"}>
           Already have an account? Sign in
         </Link>

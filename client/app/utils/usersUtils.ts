@@ -16,3 +16,7 @@ export async function createAccount(input: {
     console.log(error);
   }
 }
+
+export async function login() {
+  console.log("hello world");
+}
